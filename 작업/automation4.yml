@@ -1,0 +1,26 @@
+name: Automation4 Weekly Reservation
+
+on:
+  schedule:
+    - cron: '0 15 * * 3'   # 매주 수요일 15:00 UTC = 목요일 자정 (KST)
+
+jobs:
+  run-automation4:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install selenium telegram
+
+      - name: Run automation13.py
+        run: python automation13.py

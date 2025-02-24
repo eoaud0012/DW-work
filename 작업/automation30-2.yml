@@ -1,0 +1,49 @@
+name: Automation30-2 Hourly (KST)
+
+on:
+  schedule:
+    - cron: '0 15 * * *'  # KST 00:00 (UTC 15:00 previous day)
+    - cron: '0 16 * * *'  # KST 01:00 (UTC 16:00 previous day)
+    - cron: '0 17 * * *'  # KST 02:00 (UTC 17:00 previous day)
+    - cron: '0 18 * * *'  # KST 03:00 (UTC 18:00 previous day)
+    - cron: '0 19 * * *'  # KST 04:00 (UTC 19:00 previous day)
+    - cron: '0 20 * * *'  # KST 05:00 (UTC 20:00 previous day)
+    - cron: '0 21 * * *'  # KST 06:00 (UTC 21:00 previous day)
+    - cron: '0 22 * * *'  # KST 07:00 (UTC 22:00 previous day)
+    - cron: '0 23 * * *'  # KST 08:00 (UTC 23:00 previous day)
+    - cron: '0 0 * * *'   # KST 09:00 (UTC 00:00 same day)
+    - cron: '0 1 * * *'   # KST 10:00 (UTC 01:00 same day)
+    - cron: '0 2 * * *'   # KST 11:00 (UTC 02:00 same day)
+    - cron: '0 3 * * *'   # KST 12:00 (UTC 03:00 same day)
+    - cron: '0 4 * * *'   # KST 13:00 (UTC 04:00 same day)
+    - cron: '0 5 * * *'   # KST 14:00 (UTC 05:00 same day)
+    - cron: '0 6 * * *'   # KST 15:00 (UTC 06:00 same day)
+    - cron: '0 7 * * *'   # KST 16:00 (UTC 07:00 same day)
+    - cron: '0 8 * * *'   # KST 17:00 (UTC 08:00 same day)
+    - cron: '0 9 * * *'   # KST 18:00 (UTC 09:00 same day)
+    - cron: '0 10 * * *'  # KST 19:00 (UTC 10:00 same day)
+    - cron: '0 11 * * *'  # KST 20:00 (UTC 11:00 same day)
+    - cron: '0 12 * * *'  # KST 21:00 (UTC 12:00 same day)
+    - cron: '0 13 * * *'  # KST 22:00 (UTC 13:00 same day)
+    - cron: '0 14 * * *'  # KST 23:00 (UTC 14:00 same day)
+
+jobs:
+  run-automation30-2:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install selenium mysql-connector-python gspread google-auth-httplib2 google-auth-oauthlib
+
+      - name: Run automation30-2.py
+        run: python automation30-2.py

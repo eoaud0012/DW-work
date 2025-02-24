@@ -1,0 +1,55 @@
+weblist = ["ZDNet Korea: https://zdnet.co.kr/",
+"IT조선: http://www.itnews.or.kr/",
+"TechM: https://www.techm.kr/",
+"디지털타임스 ICT과학: http://www.dt.co.kr/",
+"ITWorld Korea: https://www.itworld.co.kr/",
+"전자신문: http://www.etnews.com/",
+"디지털데일리: http://www.ddaily.co.kr/",
+"매일경제 아이티: https://www.mk.co.kr/news/it/",
+"아이티비즈니스: http://www.itbiznews.com/",
+"데일리시큐: https://www.dailysecu.com/",
+"IT동아: http://www.itdonga.com/",
+"CIO Korea: https://www.ciokorea.com/main/",
+"아이티뉴스: http://www.itnews.or.kr/",
+"IT조선 블로그: http://blog.itnews.or.kr/",
+"마이크로소프트 뉴스: https://news.microsoft.com/ko-kr/",
+"매경이코노미IT: https://www.mk.co.kr/news/it/",
+"ZDNet Korea 인사이트: https://zdnet.co.kr/insight/",
+"테크M 프리미엄: https://www.techm.kr/news/articleList.html?sc_sub_section_code=S2N7",
+"뉴스웨이 IT: https://www.newsway.co.kr/it",
+"데일리한국 IT: https://www.dailysecu.com/news/articleList.html?sc_sub_section_code=S2N16",
+"아이뉴스24 IT: https://www.inews24.com/list/it?page=1",
+"한국정보통신기술협회정기간행물: https://www.tta.or.kr/tta/publicationHosuView.do?key=80&rep=1&searchKindNum=1&searchHosu=204",
+"정보통신정책연구원: https://www.kisdi.re.kr/",
+"정보통신산업진흥원: https://www.nipa.kr/",
+"한국정보화진흥원: https://www.nia.or.kr/",
+"한국정보보호산업협회: http://www.kispa.or.kr/",
+"한국소프트웨어산업협회: http://www.sw.or.kr/",
+"KISA(KR인터넷진흥원): https://www.kisa.or.kr/",
+"NIA(KR지능정보사회진흥원): https://www.nia.or.kr/site/nia_kor/main.do",
+"e프레스IT: http://www.epnc.co.kr/",
+"ZDNet Korea: http://www.zdnet.co.kr/",
+"데이터넷: https://www.datanet.co.kr/",
+"아이티데일리: http://www.itdaily.kr/",
+"테크M: http://www.techm.kr/",
+"녹색경제신문디지털혁신: http://www.greened.kr/",
+"전자뉴스: http://www.elecnews.co.kr/",
+"비즈니스워치: http://www.bizwatch.co.kr/",
+"정보통신신문: http://www.itnews.or.kr/",
+"아이티월드: http://www.itworld.co.kr/",
+"디지털데일리: http://www.ddaily.co.kr/",
+"보안뉴스: http://www.boannews.com/",
+"IT조선: http://it.chosun.com/",
+"IT-BIZ: http://www.itbiznews.com/",
+"넥스트데일리IT전자: http://www.nextdaily.co.kr/news/articleList.html?sc_section_code=S1N1&view_type=sm",
+"벤처스퀘어: http://www.venturesquare.net/",
+"네이버 D2: https://d2.naver.com/home"
+]
+
+new_weblist = []
+
+for item in weblist:
+    new_weblist.append(item.split(":", 1))
+
+for item in new_weblist:    
+    print(item[0])

@@ -1,0 +1,89 @@
+<div style="max-width: 700px;">
+    <table border="0" cellspacing="2" bordercolor="#1c70b6" cellpadding="0" width="740px"
+        style="font-size: 12px;font-family:malgun gothic;color: #777777;background:#1c70b6;">
+        <tbody>
+            <tr>
+                <td style="font-size: 25px;color:white; text-align:center;">#{system.title}</td>
+            </tr>
+            <tr>
+                <td>
+                    <table width="100%" style="padding:0px; background:#fff;">
+                        <tbody>
+                            <tr>
+                                <td align="center">
+                                    <table width="100%" cellpadding="0" cellspacing="0" border="0" "="">
+                                        <tbody>
+                                            <tr>
+                                                <td style=" padding-left:10px; font-weight: bold;font-size: 20px;">
+                                        요청정보
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <table width="100%" cellpadding="0" cellspacing="1" border="0" bgcolor="#E3E3E3"
+                                        style="font-size: 12px;font-family:malgun gothic;color: #777777;">
+                                        <tbody>
+                                            <tr>
+                                                <td style="text-align:center;font-weight:bold;height:28px; padding: 0 10px"
+                                                    bgcolor="#f7f7f7">일시</td>
+                                                <td style="text-align:left;padding-left:5px;padding: 0 10px"
+                                                    bgcolor="#ffffff" colspan="3">#{req_dttm}<br></td>
+                                            </tr>
+                                            <tr>
+                                                <td style="text-align:center;font-weight:bold;height:28px; padding: 0 10px;"
+                                                    bgcolor="#f7f7f7">제목</td>
+                                                <td style="text-align:left;padding-left:5px;padding: 0 10px;"
+                                                    bgcolor="#ffffff" colspan="3">#{req_title}</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="text-align:center;font-weight:bold;height:28px;padding: 0 10px;"
+                                                    bgcolor="#f7f7f7">요청자</td>
+                                                <td style="text-align:left;padding-left:5px;padding: 0 10px"
+                                                    bgcolor="#ffffff" colspan="3">#{req_emp_name} | #{req_org_name}<br>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="text-align:center;font-weight:bold;height:28px;padding: 0 10px;"
+                                                    bgcolor="#f7f7f7">업무시스템</td>
+                                                <td style="text-align:left;padding-left:5px;padding: 0 10px"
+                                                    bgcolor="#ffffff" colspan="3">#{sys_name}<br></td>
+                                            </tr>
+                                            <tr>
+                                                <td style="text-align:center;font-weight:bold;height:28px; padding: 0 10px"
+                                                    bgcolor="#f7f7f7">요청번호</td>
+                                                <td style="text-align:left;padding-left:5px; padding: 0 10px"
+                                                    bgcolor="#ffffff" colspan="3">#{req_id}</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="text-align:center;font-weight:bold;height:28px; padding: 0 10px"
+                                                    bgcolor="#f7f7f7">요청유형</td>
+                                                <td style="text-align:left;padding-left:5px; padding: 0 10px"
+                                                    bgcolor="#ffffff" colspan="3">#{cat_name}<br></td>
+                                            </tr>
+                                            <tr>
+                                                <td style="text-align:center;font-weight:bold;height:28px; padding: 0 10px"
+                                                    bgcolor="#f7f7f7">현재단계</td>
+                                                <td style="text-align:left;padding-left:5px; padding: 0 10px"
+                                                    bgcolor="#ffffff" colspan="3">#{tas_name}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <br>
+                    <a href="#{http}#{http_param}" target="_blank" style="text-decoration:none;">
+                        <div
+                            style="text-decoration: none; font-size: 13px; font-weight: bold;padding: 10px;background: #0091f0;border-radius: 5px;color: #fff; width:120px;">
+                            동원DESK 바로가기</div>
+                    </a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    </td>
+    </tr>
+    </tbody>
+    </table>
+</div>

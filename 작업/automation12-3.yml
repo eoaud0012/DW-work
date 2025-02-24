@@ -1,0 +1,26 @@
+name: Automation12-3 Daily (KST Midnight)
+
+on:
+  schedule:
+    - cron: '0 15 * * *'  # 매일 KST 00:00 (UTC 15:00)
+
+jobs:
+  run-automation12-3:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install selenium telegram gspread google-auth-httplib2 google-auth-oauthlib mysql-connector-python
+
+      - name: Run automation12-3.py
+        run: python automation12-3.py

@@ -1,0 +1,58 @@
+import time
+from random import randint
+from SRT import SRT
+from SRT import SeatType
+import telegram
+import threading
+
+def book_train(train_num):
+    global srt, dep, arr, date, tr_time, trains
+
+    train = trains[train_num]
+    print(train)
+    i = 0
+    while True:
+        try:
+            i += 1
+            time.sleep(randint(1, 4))
+            print(f"Thread {train_num}: {i}번째 시도")
+            reservation = srt.reserve(train, special_seat=SeatType.GENERAL_ONLY)
+            print('======> resv',reservation)
+            str_reservation = str(reservation)
+            bot = telegram.Bot(token=TELEGRAM_TOKEN)
+            bot.send_message(chat_id=TELEGRAM_CHATID, text=f"Thread {train_num}: 예약 완료\n{str_reservation}")
+            break  # 성공적으로 예약되면 루프 종료
+
+        except Exception as e:
+            pass
+
+##################### setting #####################
+srt_id = "2287599141"
+srt_pw = "eoaoWkd1!"
+dep = '수서'
+arr = '부산'
+date = '20240209'  # 날짜 (yyyymmdd)
+tr_time = '120000'  # 시간 (HHMMSS)
+TELEGRAM_TOKEN = "6041435620:AAH-C98ovxjuHmKOFbDM7z-Y8lI88YK1UT4"
+TELEGRAM_CHATID = "6055095538"
+###################################################
+srt = SRT(srt_id,srt_pw)
+
+# 기차 검색
+trains = srt.search_train(dep, arr, date, tr_time, available_only=False)
+print(*trains, sep='\n')
+start_num = input("몇 번부터 검색하시겠어요?")
+if int(start_num) < 1: start_num = input("1부터 입력 가능합니다.")
+start_num = int(start_num)
+num_threads = input("몇 번까지 검색하시겠어요?")
+num_threads = int(num_threads)
+
+
+threads = []
+for i in range(start_num-1, num_threads):
+    thread = threading.Thread(target=book_train, args=(i,))
+    threads.append(thread)
+    thread.start()
+
+for thread in threads:
+    thread.join()

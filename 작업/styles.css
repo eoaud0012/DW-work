@@ -1,0 +1,42 @@
+body {
+	height: 100vh;
+	margin: 0;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+	font-family: Arial;
+	font-size: 1.8rem;
+	background: linear-gradient(#fed000, #fea000);
+}
+#myRadio {
+	border: 5px solid #000;
+	background: #474;
+	color: #d5f4d3;
+}
+legend {
+	text-transform: uppercase;
+	font-family: "Rampart One", sans-serif;
+	padding: 0 1em 0 1em;
+	color: #000;
+	background: #f0fe00;
+	border: 2px solid #000;
+	border-radius: 10px;
+	text-shadow: 0 0px 5px #a00;
+	transform: rotate(2deg);
+}
+
+.editor {
+	background: #006;
+	margin: 5px;
+	padding: 5px 10px 10px 10px;
+	border: 2px solid #000;
+}
+
+.editor .descr {
+	color: #fff;
+}
+.editor input,
+button {
+	padding: 5px;
+}
