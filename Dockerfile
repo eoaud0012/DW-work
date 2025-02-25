@@ -1,5 +1,5 @@
-# Python 3.9-slim 이미지를 베이스로 사용
-FROM python:3.9-slim
+# Python 3.10.11-slim 이미지를 베이스로 사용
+FROM python:3.10.11-slim
 
 # Chrome 실행에 필요한 패키지와 의존성 설치
 RUN apt-get update && apt-get install -y \
@@ -30,8 +30,7 @@ RUN wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | apt-key add
     apt-get update && \
     apt-get install -y google-chrome-stable
 
-# apt 패키지로 chromium-driver 설치 (자동으로 필요한 의존성 함께 설치)
-RUN apt-get install -y chromium-driver
+# Chromium-driver 설치 명령어를 제거함 (Selenium 4.0 이상에서 자동 관리되므로)
 
 # Python 의존성 설치
 RUN pip install --upgrade pip && \

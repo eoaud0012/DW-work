@@ -1,4 +1,5 @@
 import os
+# Selenium Manager의 자동 드라이버 관리를 사용하므로 아래 줄은 제거합니다.
 # os.environ["SELENIUM_MANAGER_DISABLE"] = "1"
 
 import pathlib
@@ -14,7 +15,7 @@ from email.mime.multipart import MIMEMultipart
 # Selenium 관련
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.chrome.service import Service
+#from selenium.webdriver.chrome.service import Service  # 더 이상 명시적으로 Service 객체를 사용하지 않습니다.
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -231,14 +232,14 @@ def scrape_articles():
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--incognito")
     chrome_options.add_argument(
-                                "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-                                "AppleWebKit/537.36 (KHTML, like Gecko) "
-                                "Chrome/114.0.0.0 Safari/537.36"
-                                )
+        "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/114.0.0.0 Safari/537.36"
+    )
 
-    # Service 객체로 chromedriver 경로를 명시적으로 지정 (Dockerfile에서 설치한 경로)
-    service = Service('/usr/local/bin/chromedriver')
-    driver = webdriver.Chrome(service=service, options=chrome_options)
+    # Selenium Manager를 활용하여 자동으로 chromedriver를 관리하므로,
+    # Service 객체를 사용하지 않고 아래와 같이 간단하게 드라이버를 생성합니다.
+    driver = webdriver.Chrome(options=chrome_options)
     
     # 로그인 수행
     if not login_nikkei(driver, nikkei_username, nikkei_password):
