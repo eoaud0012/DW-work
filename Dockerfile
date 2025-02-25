@@ -20,6 +20,12 @@ RUN apt-get update && apt-get install -y \
     libxcomposite1 \
     libxdamage1 \
     libxrandr2 \
+    libxss1 \
+    libxtst6 \
+    libappindicator3-1 \
+    libdbus-1-3 \
+    libgconf-2-4 \
+    libgtk-3-0 \
     xdg-utils \
     --no-install-recommends && \
     rm -rf /var/lib/apt/lists/*
@@ -30,7 +36,7 @@ RUN wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | apt-key add
     apt-get update && \
     apt-get install -y google-chrome-stable
 
-# Chromium-driver 설치 명령어를 제거함 (Selenium 4.0 이상에서 자동 관리되므로)
+# Chromium-driver 설치 명령어를 제거 (Selenium Manager가 자동으로 드라이버를 관리함)
 
 # Python 의존성 설치
 RUN pip install --upgrade pip && \
