@@ -30,12 +30,8 @@ RUN wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | apt-key add
     apt-get update && \
     apt-get install -y google-chrome-stable
 
-# ChromeDriver 설치 (예: Chrome 114에 맞는 chromedriver)
-ENV CHROMEDRIVER_VERSION 114.0.5735.90
-RUN wget -O /tmp/chromedriver.zip https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip && \
-    unzip /tmp/chromedriver.zip -d /usr/local/bin/ && \
-    rm /tmp/chromedriver.zip && \
-    chmod +x /usr/local/bin/chromedriver
+# apt 패키지로 chromium-driver 설치 (자동으로 필요한 의존성 함께 설치)
+RUN apt-get install -y chromium-driver
 
 # Python 의존성 설치
 RUN pip install --upgrade pip && \
