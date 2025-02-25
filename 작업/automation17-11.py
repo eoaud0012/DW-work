@@ -236,7 +236,7 @@ def scrape_articles():
 
 # Service 객체로 chromedriver 경로를 명시적으로 지정 (Dockerfile에서 설치한 경로)
     service = Service('/usr/local/bin/chromedriver')
-    driver = webdriver.Chrome(options=chrome_options)
+    driver = webdriver.Chrome(service=service, options=chrome_options)
     
     # 로그인 수행
     if not login_nikkei(driver, nikkei_username, nikkei_password):
