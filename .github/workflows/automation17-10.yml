@@ -27,4 +27,4 @@ jobs:
           pip install python-dateutil beautifulsoup4 requests selenium pyperclip
 
       - name: Run automation script
-        run: python 작업/automation17-10.py
+        run: python 작업/automation17-11.py
