@@ -1,6 +1,9 @@
 # Python 3.10.11-slim 이미지를 베이스로 사용
 FROM python:3.10.11-slim
 
+# xclip 설치 (Linux 환경에서 pyperclip이 클립보드 기능을 사용할 수 있도록 함)
+RUN apt-get update && apt-get install -y xclip
+
 # Chrome 실행에 필요한 패키지와 의존성 설치
 RUN apt-get update && apt-get install -y \
     wget \
