@@ -1,8 +1,8 @@
 # Python 3.10.11-slim 이미지를 베이스로 사용
 FROM python:3.10.11-slim
 
-# xclip 설치 (Linux 환경에서 pyperclip이 클립보드 기능을 사용할 수 있도록 함)
-RUN apt-get update && apt-get install -y xclip
+# xclip과 xvfb 설치 (headless 환경에서 클립보드 기능을 사용하기 위함)
+RUN apt-get update && apt-get install -y xclip xvfb
 
 # Chrome 실행에 필요한 패키지와 의존성 설치
 RUN apt-get update && apt-get install -y \
@@ -51,5 +51,5 @@ WORKDIR /app
 # 저장소의 모든 파일을 컨테이너로 복사
 COPY . .
 
-# 스크립트 실행 (예시: 작업/automation17-11.py)
-CMD ["python", "작업/automation17-11.py"]
+# xvfb-run을 사용하여 Python 스크립트를 실행 (가상 X 서버 환경 제공)
+CMD ["xvfb-run", "python", "작업/automation17-11.py"]
