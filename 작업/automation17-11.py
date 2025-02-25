@@ -1,5 +1,5 @@
 import os
-# Selenium Manager의 자동 드라이버 관리를 사용하므로 아래 줄은 제거합니다.
+# Selenium Manager의 자동 드라이버 관리를 사용하므로, 환경변수 설정은 주석 처리합니다.
 # os.environ["SELENIUM_MANAGER_DISABLE"] = "1"
 
 import pathlib
@@ -15,7 +15,6 @@ from email.mime.multipart import MIMEMultipart
 # Selenium 관련
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-#from selenium.webdriver.chrome.service import Service  # 더 이상 명시적으로 Service 객체를 사용하지 않습니다.
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -24,7 +23,7 @@ from selenium.webdriver.common.keys import Keys
 import time
 import json
 
-# 클립보드 복사/붙여넣기에 사용
+# 클립보드 복사/붙여넣기에 사용 (xclip이 설치되어 있으면 Linux에서도 작동)
 import pyperclip
 
 # === API 및 이메일 관련 민감 정보 설정 (테스트용) ===
@@ -54,7 +53,7 @@ pathlib.Path.read_text = patched_read_text
 # --- Monkey patch 끝 ---
 
 # --------------------------------------------------------------------
-# 로그인 함수 (쿠키 재사용 로직 제거, pyperclip 사용)
+# 로그인 함수 (pyperclip 사용; Docker에서는 xclip이 설치되어 있어 작동함)
 # --------------------------------------------------------------------
 def login_nikkei(driver, username, password):
     driver.get("https://id.nikkei.com/account")
@@ -83,9 +82,9 @@ def login_nikkei(driver, username, password):
         )
         email_field.clear()
 
-        # 클립보드에 username 복사 후 붙여넣기
+        # pyperclip을 사용해 복사 후 붙여넣기 (xclip이 설치되어 있으면 작동)
         pyperclip.copy(username)
-        time.sleep(1)  # 너무 빠른 입력을 방지
+        time.sleep(1)  # 너무 빠른 입력 방지
         email_field.send_keys(Keys.CONTROL, 'v')
         time.sleep(1)
     except Exception as e:
@@ -113,7 +112,7 @@ def login_nikkei(driver, username, password):
         )
         password_field.clear()
 
-        # 클립보드에 password 복사 후 붙여넣기
+        # pyperclip을 사용해 복사 후 붙여넣기
         pyperclip.copy(password)
         time.sleep(1)
         password_field.send_keys(Keys.CONTROL, 'v')
@@ -236,9 +235,13 @@ def scrape_articles():
         "AppleWebKit/537.36 (KHTML, like Gecko) "
         "Chrome/114.0.0.0 Safari/537.36"
     )
+    
+    # 매 실행마다 고유한 사용자 데이터 디렉토리를 생성하여 오류를 방지합니다.
+    import tempfile
+    temp_dir = tempfile.mkdtemp()
+    chrome_options.add_argument(f"--user-data-dir={temp_dir}")
 
-    # Selenium Manager를 활용하여 자동으로 chromedriver를 관리하므로,
-    # Service 객체를 사용하지 않고 아래와 같이 간단하게 드라이버를 생성합니다.
+    # Selenium Manager를 활용하여 자동으로 chromedriver를 관리합니다.
     driver = webdriver.Chrome(options=chrome_options)
     
     # 로그인 수행
