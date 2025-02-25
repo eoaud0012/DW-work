@@ -1,0 +1,21 @@
+name: Build and Run Docker Container
+
+on:
+  schedule:
+    # 매일 한국시간 오전 8시 실행 (UTC 기준: 매일 23:00)
+    - cron: "0 23 * * *"
+  workflow_dispatch:  # 수동 실행 옵션
+
+jobs:
+  build-run:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Build Docker Image
+        run: docker build -t my-automation .
+
+      - name: Run Docker Container
+        run: docker run my-automation
