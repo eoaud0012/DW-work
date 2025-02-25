@@ -1,4 +1,6 @@
 import os
+os.environ["SELENIUM_MANAGER_DISABLE"] = "1"
+
 import pathlib
 import re
 from datetime import datetime as dt
@@ -234,7 +236,7 @@ def scrape_articles():
                                 "Chrome/114.0.0.0 Safari/537.36"
                                 )
 
-# Service 객체로 chromedriver 경로를 명시적으로 지정 (Dockerfile에서 설치한 경로)
+    # Service 객체로 chromedriver 경로를 명시적으로 지정 (Dockerfile에서 설치한 경로)
     service = Service('/usr/local/bin/chromedriver')
     driver = webdriver.Chrome(service=service, options=chrome_options)
     
