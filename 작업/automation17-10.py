@@ -230,6 +230,7 @@ def scrape_articles():
         "AppleWebKit/537.36 (KHTML, like Gecko) "
         "Chrome/114.0.0.0 Safari/537.36"
     )
+    chrome_options.add_argument("--user-data-dir=/tmp/chrome-profile")
     driver = webdriver.Chrome(options=chrome_options)
     
     # 로그인 수행
