@@ -52,4 +52,4 @@ WORKDIR /app
 COPY . .
 
 # xvfb-run을 사용하여 Python 스크립트를 실행 (가상 X 서버 환경 제공)
-CMD ["xvfb-run", "python", "작업/automation17-11.py"]
+CMD ["xvfb-run", "python", "작업/automation17-10.4.py"]
