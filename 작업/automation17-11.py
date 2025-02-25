@@ -12,6 +12,7 @@ from email.mime.multipart import MIMEMultipart
 # Selenium 관련
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -222,13 +223,19 @@ def scrape_articles():
     ]
     
     chrome_options = Options()
-    # chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--headless=new")
     chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--incognito")
     chrome_options.add_argument(
-        "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-        "AppleWebKit/537.36 (KHTML, like Gecko) "
-        "Chrome/114.0.0.0 Safari/537.36"
-    )
+                                "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                                "Chrome/114.0.0.0 Safari/537.36"
+                                )
+
+# Service 객체로 chromedriver 경로를 명시적으로 지정 (Dockerfile에서 설치한 경로)
+    service = Service('/usr/local/bin/chromedriver')
     driver = webdriver.Chrome(options=chrome_options)
     
     # 로그인 수행

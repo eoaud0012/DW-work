@@ -1,14 +1,28 @@
 # Python 3.9-slim 이미지를 베이스로 사용
 FROM python:3.9-slim
 
-# Chrome 실행에 필요한 패키지 설치
+# Chrome 실행에 필요한 패키지와 의존성 설치
 RUN apt-get update && apt-get install -y \
     wget \
     gnupg \
     unzip \
     curl \
     ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
+    fonts-liberation \
+    libasound2 \
+    libatk1.0-0 \
+    libatk-bridge2.0-0 \
+    libdrm2 \
+    libgbm1 \
+    libnspr4 \
+    libnss3 \
+    libx11-xcb1 \
+    libxcomposite1 \
+    libxdamage1 \
+    libxrandr2 \
+    xdg-utils \
+    --no-install-recommends && \
+    rm -rf /var/lib/apt/lists/*
 
 # Google Chrome 설치
 RUN wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | apt-key add - && \
@@ -16,8 +30,7 @@ RUN wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | apt-key add
     apt-get update && \
     apt-get install -y google-chrome-stable
 
-# Chrome 버전에 맞는 ChromeDriver 설치
-# 예를 들어, Chrome 114 버전에 맞는 chromedriver를 설치 (Chrome 버전은 컨테이너 내에서 'google-chrome --version'으로 확인 가능)
+# ChromeDriver 설치 (예: Chrome 114에 맞는 chromedriver)
 ENV CHROMEDRIVER_VERSION 114.0.5735.90
 RUN wget -O /tmp/chromedriver.zip https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip && \
     unzip /tmp/chromedriver.zip -d /usr/local/bin/ && \
