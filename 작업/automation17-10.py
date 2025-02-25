@@ -8,6 +8,7 @@ import requests  # HTTP 요청 (번역 함수에서 사용)
 import smtplib  # 이메일 발송용 SMTP
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+import tempfile
 
 # Selenium 관련
 from selenium import webdriver
@@ -230,7 +231,8 @@ def scrape_articles():
         "AppleWebKit/537.36 (KHTML, like Gecko) "
         "Chrome/114.0.0.0 Safari/537.36"
     )
-    chrome_options.add_argument("--user-data-dir=/tmp/chrome-profile")
+    temp_dir = tempfile.mkdtemp()
+    chrome_options.add_argument(f"--user-data-dir={temp_dir}")
     driver = webdriver.Chrome(options=chrome_options)
     
     # 로그인 수행
