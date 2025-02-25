@@ -23,8 +23,8 @@ jobs:
         run: |
           # 필요한 패키지를 requirements.txt에 정의해두었을 경우
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          # 필요한 추가 패키지가 있다면 아래와 같이 설치할 수 있습니다.
+          # 필요한 추가 패키지 설치
           pip install python-dateutil beautifulsoup4 requests selenium pyperclip
 
       - name: Run automation script
-        run: python automation17-10.py
+        run: python 작업/automation17-10.py
