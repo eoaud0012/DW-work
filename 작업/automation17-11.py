@@ -1,5 +1,5 @@
 import os
-os.environ["SELENIUM_MANAGER_DISABLE"] = "1"
+# os.environ["SELENIUM_MANAGER_DISABLE"] = "1"
 
 import pathlib
 import re
