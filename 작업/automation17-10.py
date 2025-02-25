@@ -8,7 +8,7 @@ import requests  # HTTP 요청 (번역 함수에서 사용)
 import smtplib  # 이메일 발송용 SMTP
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-import tempfile
+import uuid
 
 # Selenium 관련
 from selenium import webdriver
@@ -224,17 +224,19 @@ def scrape_articles():
     
     chrome_options = Options()
     # 필요 시 헤드리스 모드 사용
-    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--headless=new")
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--incognito")
     chrome_options.add_argument(
         "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
         "AppleWebKit/537.36 (KHTML, like Gecko) "
         "Chrome/114.0.0.0 Safari/537.36"
     )
-    temp_dir = tempfile.mkdtemp()
-    chrome_options.add_argument(f"--user-data-dir={temp_dir}")
+    # uuid를 이용해 고유한 사용자 데이터 디렉토리 생성
+    unique_user_data_dir = f"/tmp/chrome-user-data-{uuid.uuid4()}"
+    chrome_options.add_argument(f"--user-data-dir={unique_user_data_dir}")
     driver = webdriver.Chrome(options=chrome_options)
     
     # 로그인 수행
