@@ -144,7 +144,7 @@ for row in project_data:
 
 # 8. Google 스프레드시트에 데이터 전송 (B2부터 기록)
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-creds = Credentials.from_service_account_file("demainlee-c18e8f2ad88f.json", scopes=scope)
+creds = Credentials.from_service_account_file("demianlee-c18e8f2ad88f.json", scopes=scope)
 client = gspread.authorize(creds)
 
 try:

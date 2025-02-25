@@ -83,7 +83,7 @@ for row in data:
 # 3. Google 스프레드시트 API 인증 및 "파이썬2" 워크시트 지정
 # --------------------------------------
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-creds = Credentials.from_service_account_file("demainlee-c18e8f2ad88f.json", scopes=scope)
+creds = Credentials.from_service_account_file("demianlee-c18e8f2ad88f.json", scopes=scope)
 client = gspread.authorize(creds)
 
 spreadsheet_name = "★ [PMS] DT본부 프로젝트 평가_250217_평가방식개선_배포용"
