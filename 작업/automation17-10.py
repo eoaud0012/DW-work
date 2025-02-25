@@ -223,7 +223,7 @@ def scrape_articles():
     
     chrome_options = Options()
     # 필요 시 헤드리스 모드 사용
-    # chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--headless")
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument(
         "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
