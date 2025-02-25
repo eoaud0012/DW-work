@@ -53,7 +53,7 @@ pathlib.Path.read_text = patched_read_text
 # --- Monkey patch 끝 ---
 
 # --------------------------------------------------------------------
-# 로그인 함수 (pyperclip 사용; Docker에서는 xclip이 설치되어 있어 작동함)
+# 로그인 함수 (pyperclip 사용; Docker에서는 xclip이 설치되어 있으면 작동함)
 # --------------------------------------------------------------------
 def login_nikkei(driver, username, password):
     driver.get("https://id.nikkei.com/account")
@@ -237,9 +237,9 @@ def scrape_articles():
     )
     
     # 매 실행마다 고유한 사용자 데이터 디렉토리를 생성하여 오류를 방지합니다.
-    import tempfile
-    temp_dir = tempfile.mkdtemp()
-    chrome_options.add_argument(f"--user-data-dir={temp_dir}")
+    import uuid
+    user_data_dir = f"/tmp/chrome-profile-{uuid.uuid4()}"
+    chrome_options.add_argument(f"--user-data-dir={user_data_dir}")
 
     # Selenium Manager를 활용하여 자동으로 chromedriver를 관리합니다.
     driver = webdriver.Chrome(options=chrome_options)
