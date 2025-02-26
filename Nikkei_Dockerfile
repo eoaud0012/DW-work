@@ -1,8 +1,9 @@
 # Python 3.10.11-slim 이미지를 베이스로 사용
 FROM python:3.10.11-slim
 
-# xclip과 xvfb 설치 (headless 환경에서 클립보드 기능을 사용하기 위함)
-RUN apt-get update && apt-get install -y xclip xvfb
+# procps와 필요한 X 관련 라이브러리 설치 (headless Chrome 실행에 필요한 최소한의 라이브러리)
+RUN apt-get update && apt-get install -y procps \
+    libxrender1 libxi6 libgl1-mesa-glx libgl1-mesa-dri libgles2-mesa mesa-utils
 
 # Chrome 실행에 필요한 패키지와 의존성 설치
 RUN apt-get update && apt-get install -y \
@@ -30,8 +31,7 @@ RUN apt-get update && apt-get install -y \
     libgconf-2-4 \
     libgtk-3-0 \
     xdg-utils \
-    --no-install-recommends && \
-    rm -rf /var/lib/apt/lists/*
+    --no-install-recommends && rm -rf /var/lib/apt/lists/*
 
 # Google Chrome 설치
 RUN wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | apt-key add - && \
@@ -39,17 +39,15 @@ RUN wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | apt-key add
     apt-get update && \
     apt-get install -y google-chrome-stable
 
-# Chromium-driver 설치 명령어를 제거 (Selenium Manager가 자동으로 드라이버를 관리함)
-
-# Python 의존성 설치
+# Python 의존성 설치 (클립보드 관련 패키지는 사용하지 않음)
 RUN pip install --upgrade pip && \
-    pip install python-dateutil beautifulsoup4 requests selenium pyperclip
+    pip install python-dateutil beautifulsoup4 requests selenium selenium-stealth
 
 # 작업 디렉토리 설정
 WORKDIR /app
 
-# 저장소의 모든 파일을 컨테이너로 복사
+# 빌드 컨텍스트의 모든 파일을 복사
 COPY . .
 
-# xvfb-run을 사용하여 Python 스크립트를 실행 (가상 X 서버 환경 제공)
-CMD ["xvfb-run", "python", "작업/automation17-10.4.py"]
+# CMD 명령어로 Python 스크립트를 직접 실행 (entrypoint.sh 없이)
+CMD ["python", "작업/automation17-10.9.py"]

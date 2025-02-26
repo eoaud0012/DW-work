@@ -2,6 +2,8 @@ import os
 import pathlib
 import re
 import subprocess
+import platform
+import shutil
 from datetime import datetime as dt
 from dateutil.parser import parse  # 다양한 날짜 형식 자동 파싱
 from bs4 import BeautifulSoup
@@ -23,6 +25,8 @@ from selenium.webdriver.common.keys import Keys
 
 # 클립보드 복사/붙여넣기에 사용 (기존 사용하던 라이브러리)
 import pyperclip
+if platform.system() != "Windows":
+    pyperclip.set_clipboard("xclip")
 
 # Selenium-stealth 라이브러리 (봇 탐지 회피용)
 from selenium_stealth import stealth
@@ -62,34 +66,59 @@ def human_typing(element, text):
 def kill_chrome():
     """
     크롬이 실행 중이라면 모두 종료합니다.
-    Windows에서는 taskkill 명령어를 사용합니다.
+    Windows에서는 taskkill, Linux에서는 pkill 명령어를 사용합니다.
+    pkill이 없는 경우 경고 메시지를 출력합니다.
     """
     try:
-        subprocess.call("taskkill /F /IM chrome.exe", shell=True)
+        if platform.system() == "Windows":
+            subprocess.call("taskkill /F /IM chrome.exe", shell=True)
+        else:
+            if shutil.which("pkill"):
+                subprocess.call(["pkill", "-f", "chrome"])
+            else:
+                print("경고: 'pkill' 명령어를 찾을 수 없습니다. Dockerfile에 procps 패키지를 설치하세요.")
         print("기존의 모든 Chrome 프로세스 종료 완료")
     except Exception as e:
         print("Chrome 종료 중 오류 발생:", e)
 
 def start_chrome_debug():
     """
-    cmd 창에서 아래 명령어와 동일하게 remote debugging 모드로 크롬을 실행합니다.
-    "C:\Program Files\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9222 --user-data-dir="C:\chrome_debug_profile"
+    remote debugging 모드로 크롬을 실행합니다.
+    Windows에서는 기본 옵션을, Linux에서는 headless 모드에 추가 옵션들을 사용합니다.
     """
-    chrome_path = r"C:\Program Files\Google\Chrome\Application\chrome.exe"
-    user_data_dir = r"C:\chrome_debug_profile"
-    cmd = [chrome_path, "--remote-debugging-port=9222", f"--user-data-dir={user_data_dir}"]
+    if platform.system() == "Windows":
+        chrome_path = r"C:\Program Files\Google\Chrome\Application\chrome.exe"
+        user_data_dir = r"C:\chrome_debug_profile"
+        cmd = [chrome_path, "--remote-debugging-port=9222", f"--user-data-dir={user_data_dir}"]
+    else:
+        chrome_path = "/usr/bin/google-chrome"
+        user_data_dir = "/tmp/chrome_debug_profile"
+        cmd = [
+            chrome_path,
+            "--no-sandbox",
+            "--headless=new", # 변경된 headless 옵션
+            "--disable-dev-shm-usage",
+            "--disable-gpu",
+            "--remote-debugging-port=9222",
+            f"--user-data-dir={user_data_dir}"
+        ]
     process = subprocess.Popen(cmd)
-    # 크롬이 완전히 실행될 때까지 대기 (환경에 따라 조정)
-    time.sleep(5)
+    time.sleep(5)  # Chrome이 완전히 실행될 때까지 대기
     return process
 
 def create_driver_debug():
     """
     remote debugging 모드로 실행된 크롬에 연결합니다.
+    Linux 환경에서는 추가 옵션을 전달합니다.
     """
     chrome_options = Options()
     chrome_options.add_experimental_option("debuggerAddress", "127.0.0.1:9222")
     chrome_options.add_argument("--disable-blink-features=AutomationControlled")
+    if platform.system() != "Windows":
+        chrome_options.add_argument("--no-sandbox")
+        chrome_options.add_argument("--headless=new")  # headless 모드 활성화 # 변경된 headless 옵션
+        chrome_options.add_argument("--disable-dev-shm-usage")
+        chrome_options.add_argument("--disable-gpu")
     driver = webdriver.Chrome(options=chrome_options)
     
     # Selenium-stealth 적용 (봇 탐지 회피)
