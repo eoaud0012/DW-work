@@ -1,0 +1,28 @@
+name: Build and Run Docker Container
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-and-run:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      # Docker 빌드 단계 (Nikkei_Dockerfile을 사용하여 이미지 빌드)
+      - name: Build Docker Image
+        run: |
+          docker build -t my-automation-image -f Nikkei_Dockerfile .
+
+      # (선택 사항) 빌드 후 이미지 목록 확인
+      - name: List Docker Images
+        run: docker images
+
+      # Docker 컨테이너 실행 단계
+      - name: Run Docker Container
+        run: |
+          docker run --rm my-automation-image
