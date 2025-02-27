@@ -1,0 +1,96 @@
+Metadata-Version: 2.4
+Name: SRTrain
+Version: 2.6.7
+Summary: SRT(Super Rapid Train) wrapper for python
+Project-URL: Homepage, https://github.com/ryanking13/SRT
+Project-URL: Bug Tracker, https://github.com/ryanking13/SRT/issues
+Project-URL: Changelog, https://github.com/ryanking13/SRT/blob/master/CHANGELOG.md
+Author-email: Gyeongjae Choi <def6488@gmail.com>
+License: MIT License
+        
+        Copyright (c) 2018 Gyeongjae Choi
+        
+        Permission is hereby granted, free of charge, to any person obtaining a copy
+        of this software and associated documentation files (the "Software"), to deal
+        in the Software without restriction, including without limitation the rights
+        to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+        copies of the Software, and to permit persons to whom the Software is
+        furnished to do so, subject to the following conditions:
+        
+        The above copyright notice and this permission notice shall be included in all
+        copies or substantial portions of the Software.
+        
+        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+        IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+        FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+        AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+        LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+        OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+        SOFTWARE.
+License-File: LICENSE
+Requires-Python: >=3.10
+Requires-Dist: requests
+Provides-Extra: test
+Requires-Dist: black==23.12.1; extra == 'test'
+Requires-Dist: pre-commit; extra == 'test'
+Requires-Dist: pytest; extra == 'test'
+Requires-Dist: pytest-httpserver; extra == 'test'
+Description-Content-Type: text/markdown
+
+# SRT
+
+![github actions badge](https://github.com/ryanking13/SRT/workflows/Test/badge.svg)
+[![Downloads](https://pepy.tech/badge/srtrain)](https://pepy.tech/project/srtrain)
+[![Downloads](https://pepy.tech/badge/srtrain/month)](https://pepy.tech/project/srtrain)
+[![Documentation Status](https://readthedocs.org/projects/srtrain/badge/?version=latest)](https://srtrain.readthedocs.io/en/latest/?badge=latest)
+
+
+SRT(Super Rapid Train) application python wrapper
+
+With `SRTrain`, you **can**:
+
+- Search SRT train schedules.
+- Reserve SRT trains.
+- Find your reservations/tickets information.
+- Cancel reservations/tickets.
+
+while you **can't**:
+
+- Pay for a ticket.
+- Search or reserve non-SRT trains (KTX, ITX, ... ) (use [korail2](https://github.com/carpedm20/korail2) instead)
+
+This project was inspired from [korail2](https://github.com/carpedm20/korail2) of [carpedm20](https://github.com/carpedm20).
+
+## Quickstart
+
+```
+pip install SRTrain
+```
+
+```python
+>>> from SRT import SRT
+>>> srt = SRT("010-1234-xxxx", YOUR_PASSWORD)
+
+>>> dep = '수서'
+>>> arr = '부산'
+>>> date = '20190930'
+>>> time = '144000'
+>>> trains = srt.search_train(dep, arr, date, time)
+>>> trains
+# [[SRT] 09월 30일, 수서~부산(15:00~17:34) 특실 예약가능, 일반실 예약가능,
+# [SRT] 09월 30일, 수서~부산(15:30~18:06) 특실 예약가능, 일반실 예약가능,
+# [SRT] 09월 30일, 수서~부산(16:00~18:24) 특실 매진, 일반실 예약가능,
+# [SRT] 09월 30일, 수서~부산(16:25~18:45) 특실 예약가능, 일반실 예약가능, ...]
+
+>>> reservation = srt.reserve(trains[1])
+>>> reservation
+# [SRT] 09월 30일, 수서~부산(15:30~18:06) 53700원(1석), 구입기한 09월 20일 23:38
+```
+
+## Documentation
+
+See [documentation](https://srtrain.readthedocs.io/en/latest/).
+
+## See Also
+
+- [go-SRT](https://github.com/ryanking13/go-SRT): SRT golang wrapper
