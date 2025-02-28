@@ -12,6 +12,7 @@ import smtplib  # 이메일 발송용 SMTP
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import time
+import traceback
 import json
 import random  # 자연스러운 타이핑에 사용할 랜덤 딜레이
 
@@ -138,64 +139,83 @@ def is_logged_in(driver):
         return False
 
 def login_nikkei(driver, username, password):
+    print("1. https://www.nikkei.com 접속")
     driver.get("https://www.nikkei.com")
     time.sleep(3)
+    
     try:
+        print("2. 로그인 링크 클릭 시도")
         login_button = WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable((By.XPATH, "//a[contains(@class, 'k-header-account-nav__item-login')]"))
         )
         login_button.click()
+        print("   로그인 링크 클릭 성공")
     except Exception as e:
-        print("로그인 링크 클릭 실패:", e)
+        print("   [오류] 로그인 링크 클릭 실패:", e)
+        print(traceback.format_exc())
         return False
 
     try:
+        print("3. 이메일 입력 필드 찾기 및 아이디 입력 시도")
         email_field = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.ID, "login-id-email"))
         )
         email_field.clear()
         email_field.send_keys(username)
         time.sleep(2)
+        print("   이메일 입력 성공")
     except Exception as e:
-        print("이메일 입력 필드 찾기 실패:", e)
+        print("   [오류] 이메일 입력 필드 찾기 실패:", e)
+        print(traceback.format_exc())
         return False
 
     try:
+        print("4. 첫 번째 로그인 제출 버튼 클릭 시도")
         submit_button = WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable((By.XPATH, "//button[@data-testid='submit']"))
         )
         driver.execute_script("arguments[0].click();", submit_button)
         time.sleep(3)
+        print("   첫 번째 제출 버튼 클릭 성공")
     except Exception as e:
-        print("로그인 제출 버튼 클릭 실패:", e)
+        print("   [오류] 첫 번째 로그인 제출 버튼 클릭 실패:", e)
+        print(traceback.format_exc())
         return False
-    
-        # 비밀번호 입력 (클립보드 사용 대신 직접 입력)
+
     try:
+        print("5. 비밀번호 입력 필드 찾기 및 비밀번호 입력 시도")
         password_field = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.ID, "login-password-password"))
         )
         password_field.clear()
         password_field.send_keys(password)
-        time.sleep(2)           # 비밀번호 입력 후 2초 딜레이
+        time.sleep(2)
+        print("   비밀번호 입력 성공")
     except Exception as e:
-        print("비밀번호 입력 필드 찾기 실패:", e)
+        print("   [오류] 비밀번호 입력 필드 찾기 실패:", e)
+        print(traceback.format_exc())
         return False
-    
+
     try:
+        print("6. 두 번째 로그인 제출 버튼 클릭 시도")
         submit_button = WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable((By.XPATH, "//button[@data-testid='submit']"))
         )
         driver.execute_script("arguments[0].click();", submit_button)
         time.sleep(3)
+        print("   두 번째 제출 버튼 클릭 성공")
     except Exception as e:
-        print("두 번째 로그인 제출 버튼 클릭 실패:", e)
+        print("   [오류] 두 번째 로그인 제출 버튼 클릭 실패:", e)
+        print(traceback.format_exc())
         return False
 
     try:
+        print("7. 로그인 성공 여부 확인 시도")
         WebDriverWait(driver, 10).until(lambda d: "/login" not in d.current_url)
+        print("   로그인 페이지 탈출 확인")
     except Exception as e:
-        print("로그인 성공 확인 실패:", e)
+        print("   [오류] 로그인 성공 확인 실패:", e)
+        print(traceback.format_exc())
         return False
 
     print("로그인 성공!")
