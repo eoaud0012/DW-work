@@ -25,7 +25,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 
 # 클립보드 복사/붙여넣기에 사용 (기존 사용하던 라이브러리)
-import pyperclip
+# import pyperclip
 
 # Selenium-stealth 라이브러리 (봇 탐지 회피용)
 from selenium_stealth import stealth
@@ -136,7 +136,7 @@ def login_nikkei(driver, username):
             EC.presence_of_element_located((By.ID, "login-id-email"))
         )
         email_field.clear()
-        pyperclip.copy(username)
+        email_field.send_keys(username)
         time.sleep(1)
         email_field.send_keys(Keys.CONTROL, 'v')
         time.sleep(2)
