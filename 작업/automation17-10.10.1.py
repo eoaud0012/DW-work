@@ -92,6 +92,8 @@ def create_driver_debug():
     chrome_options = Options()
     chrome_options.add_experimental_option("debuggerAddress", "127.0.0.1:9222")
     chrome_options.add_argument("--disable-blink-features=AutomationControlled")
+    chrome_options.add_argument("--no-sandbox") # Docker 컨테이너 내에서 Chrome이 root 사용자로 실행되면서 sandbox 모드를 사용하려고 함
+    chrome_options.add_argument("--disable-dev-shm-usage")
     driver = webdriver.Chrome(options=chrome_options)
     
     # Selenium-stealth 적용 (봇 탐지 회피)
