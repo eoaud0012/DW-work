@@ -4,61 +4,37 @@ FROM python:3.10.11-slim
 # Python 출력 버퍼링 해제
 ENV PYTHONUNBUFFERED=1
 
-# Headless Chrome 실행에 필요한 최소 라이브러리 설치
+# 시스템 라이브러리 설치: Headless Chrome 실행과 관련된 최소 라이브러리 및 Chrome 관련 패키지 설치
 RUN apt-get update && apt-get install -y procps \
-    libxrender1 libxi6 libgl1-mesa-glx libgl1-mesa-dri libgles2-mesa mesa-utils
-
-# Chrome 실행에 필요한 패키지와 의존성 설치
-RUN apt-get update && apt-get install -y \
-    wget \
-    gnupg \
-    unzip \
-    curl \
-    ca-certificates \
-    fonts-liberation \
-    libasound2 \
-    libatk1.0-0 \
-    libatk-bridge2.0-0 \
-    libdrm2 \
-    libgbm1 \
-    libnspr4 \
-    libnss3 \
-    libx11-xcb1 \
-    libxcomposite1 \
-    libxdamage1 \
-    libxrandr2 \
-    libxss1 \
-    libxtst6 \
-    libappindicator3-1 \
-    libdbus-1-3 \
-    libgconf-2-4 \
-    libgtk-3-0 \
-    xdg-utils \
-    --no-install-recommends && rm -rf /var/lib/apt/lists/*
+    libxrender1 libxi6 libgl1-mesa-glx libgl1-mesa-dri libgles2-mesa mesa-utils && \
+    apt-get update && apt-get install -y \
+    wget gnupg unzip curl ca-certificates fonts-liberation libasound2 libatk1.0-0 \
+    libatk-bridge2.0-0 libdrm2 libgbm1 libnspr4 libnss3 libx11-xcb1 libxcomposite1 \
+    libxdamage1 libxrandr2 libxss1 libxtst6 libappindicator3-1 libdbus-1-3 libgconf-2-4 \
+    libgtk-3-0 xdg-utils --no-install-recommends && rm -rf /var/lib/apt/lists/*
 
 # Google Chrome 설치
 RUN wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | apt-key add - && \
-    echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list && \
+    echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" \
+    > /etc/apt/sources.list.d/google-chrome.list && \
     apt-get update && apt-get install -y google-chrome-stable
 
-# WeasyPrint가 동작하기 위한 의존 라이브러리 설치
+# WeasyPrint 실행을 위한 추가 라이브러리 설치
 RUN apt-get update && apt-get install -y \
-    libcairo2 \
-    libpango-1.0-0 \
-    libpangocairo-1.0-0 \
-    libgdk-pixbuf2.0-0 \
-    libffi-dev \
+    libcairo2 libpango-1.0-0 libpangocairo-1.0-0 libgdk-pixbuf2.0-0 libffi-dev \
     --no-install-recommends && rm -rf /var/lib/apt/lists/*
 
-# pip 업그레이드 및 필요한 파이썬 패키지 설치
-RUN pip install --upgrade pip && \
-    pip install python-dateutil beautifulsoup4 requests selenium selenium-stealth weasyprint
-
-# 작업 디렉토리 설정
+# 작업 디렉토리 설정 (이후 파일 복사 및 명령어 실행이 모두 이 디렉토리 내에서 진행됩니다)
 WORKDIR /app
 
-# 빌드 컨텍스트의 모든 파일 복사
+# 먼저 requirements.txt 파일만 복사
+COPY requirements.txt .
+
+# pip 업그레이드 후 requirements.txt에 명시된 라이브러리 설치
+RUN pip install --upgrade pip && pip install -r requirements.txt
+
+# 이후 나머지 소스코드 복사 (이 단계부터는 코드 변경에 따라 캐시가 무효화됩니다)
 COPY . .
 
-# CMD 명령어로 파이썬 스크립트 실행 (파일명은 필요에 따라 수정)
+# 컨테이너 시작 시 실행할 명령어 지정 (실행할 파이썬 스크립트 파일명을 필요에 따라 수정하세요)
 CMD ["python", "작업/automation17-10.10.1.py"]
