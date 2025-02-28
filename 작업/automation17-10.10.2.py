@@ -140,20 +140,34 @@ def is_logged_in(driver):
 
 def login_nikkei(driver, username, password):
     print("1. https://www.nikkei.com 접속")
-    driver.get("https://www.nikkei.com")
+    # driver.get("https://www.nikkei.com")
+    driver.get("https://id.nikkei.com/account")
     time.sleep(3)
     
+    # try:
+    #     print("2. 로그인 링크 클릭 시도")
+    #     login_button = WebDriverWait(driver, 10).until(
+    #         EC.element_to_be_clickable((By.XPATH, "//a[contains(@class, 'k-header-account-nav__item-login')]"))
+    #     )
+    #     login_button.click()
+    #     print("   로그인 링크 클릭 성공")
+    # except Exception as e:
+    #     print("   [오류] 로그인 링크 클릭 실패:", e)
+    #     print(traceback.format_exc())
+    #     return False
+
+        # 로그인 버튼 클릭
     try:
-        print("2. 로그인 링크 클릭 시도")
-        login_button = WebDriverWait(driver, 10).until(
-            EC.element_to_be_clickable((By.XPATH, "//a[contains(@class, 'k-header-account-nav__item-login')]"))
+        WebDriverWait(driver, 5).until(
+            EC.presence_of_element_located((By.XPATH, '//button[@data-testid="button-login"]'))
         )
-        login_button.click()
-        print("   로그인 링크 클릭 성공")
+        driver.find_element(By.XPATH, '//button[@data-testid="button-login"]').click()
     except Exception as e:
-        print("   [오류] 로그인 링크 클릭 실패:", e)
-        print(traceback.format_exc())
+        print("로그인 버튼 클릭 실패 또는 이미 로그인됨:", e)
         return False
+
+
+
 
     try:
         print("3. 이메일 입력 필드 찾기 및 아이디 입력 시도")
