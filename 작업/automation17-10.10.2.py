@@ -139,38 +139,45 @@ def is_logged_in(driver):
         return False
 
 def login_nikkei(driver, username, password):
-    print("1. https://www.nikkei.com 접속")
-    # driver.get("https://www.nikkei.com")
-    driver.get("https://id.nikkei.com/account")
-    time.sleep(3)
-    
-    # try:
-    #     print("2. 로그인 링크 클릭 시도")
-    #     login_button = WebDriverWait(driver, 10).until(
-    #         EC.element_to_be_clickable((By.XPATH, "//a[contains(@class, 'k-header-account-nav__item-login')]"))
-    #     )
-    #     login_button.click()
-    #     print("   로그인 링크 클릭 성공")
-    # except Exception as e:
-    #     print("   [오류] 로그인 링크 클릭 실패:", e)
-    #     print(traceback.format_exc())
-    #     return False
+    max_attempts = 5
+    for attempt in range(1, max_attempts + 1):
+        print(f"로그인 시도 {attempt}회: challenge 페이지 여부 확인")
+        # challenge URL로 접근
+        driver.get("https://id.nikkei.com/login/challenge")
+        time.sleep(3)
+        current_url = driver.current_url
+        print("현재 URL:", current_url)
+        if "/login/challenge" in current_url:
+            print("2차 인증 challenge 페이지 감지됨.")
+            # 기존 디버그 프로필(지속적 user-data-dir)을 그대로 사용하도록 Chrome 프로세스만 종료
+            kill_chrome()
+            # 0초 ~ 600초(10분) 사이 랜덤 대기
+            wait_time = random.uniform(0, 600)
+            print(f"{wait_time:.2f}초 대기 후 재시도합니다.")
+            time.sleep(wait_time)
+            # 기존 디버그 프로필을 재사용하여 드라이버 재생성
+            driver = create_driver_debug()
+        else:
+            print("challenge 페이지가 아님. 로그인 진행합니다.")
+            break
+    else:
+        print("최대 시도 횟수를 초과하여 로그인 실패.")
+        return False
 
-        # 로그인 버튼 클릭
+    # 이후 기존 로그인 절차 진행
     try:
+        print("로그인 버튼 클릭 시도")
         WebDriverWait(driver, 5).until(
             EC.presence_of_element_located((By.XPATH, '//button[@data-testid="button-login"]'))
         )
         driver.find_element(By.XPATH, '//button[@data-testid="button-login"]').click()
+        print("   로그인 버튼 클릭 성공")
     except Exception as e:
         print("로그인 버튼 클릭 실패 또는 이미 로그인됨:", e)
         return False
 
-
-
-
     try:
-        print("3. 이메일 입력 필드 찾기 및 아이디 입력 시도")
+        print("이메일 입력 필드 찾기 및 아이디 입력 시도")
         email_field = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.ID, "login-id-email"))
         )
@@ -179,25 +186,25 @@ def login_nikkei(driver, username, password):
         time.sleep(2)
         print("   이메일 입력 성공")
     except Exception as e:
-        print("   [오류] 이메일 입력 필드 찾기 실패:", e)
-        print(traceback.format_exc())
+        print("이메일 입력 필드 찾기 실패:", e)
         return False
 
     try:
-        print("4. 첫 번째 로그인 제출 버튼 클릭 시도")
-        submit_button = WebDriverWait(driver, 10).until(
-            EC.element_to_be_clickable((By.XPATH, "//button[@data-testid='submit']"))
-        )
-        driver.execute_script("arguments[0].click();", submit_button)
-        time.sleep(3)
-        print("   첫 번째 제출 버튼 클릭 성공")
+        print("이메일 제출 버튼 클릭 시도")
+        driver.find_element(By.XPATH, '//button[@data-testid="submit"]').click()
     except Exception as e:
-        print("   [오류] 첫 번째 로그인 제출 버튼 클릭 실패:", e)
-        print(traceback.format_exc())
+        print("이메일 제출 버튼 클릭 실패:", e)
         return False
 
     try:
-        print("5. 비밀번호 입력 필드 찾기 및 비밀번호 입력 시도")
+        print("비밀번호 페이지 전환 대기")
+        WebDriverWait(driver, 10).until(EC.url_contains("/login/password"))
+    except Exception as e:
+        print("비밀번호 페이지 전환 대기 실패:", e)
+        return False
+
+    try:
+        print("비밀번호 입력 필드 찾기 및 비밀번호 입력 시도")
         password_field = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.ID, "login-password-password"))
         )
@@ -206,34 +213,23 @@ def login_nikkei(driver, username, password):
         time.sleep(2)
         print("   비밀번호 입력 성공")
     except Exception as e:
-        print("   [오류] 비밀번호 입력 필드 찾기 실패:", e)
-        print(traceback.format_exc())
+        print("비밀번호 입력 필드 찾기 실패:", e)
         return False
 
     try:
-        print("6. 두 번째 로그인 제출 버튼 클릭 시도")
-        submit_button = WebDriverWait(driver, 10).until(
-            EC.element_to_be_clickable((By.XPATH, "//button[@data-testid='submit']"))
+        print("비밀번호 제출 버튼 클릭 시도")
+        driver.find_element(By.XPATH, '//button[@data-testid="submit"]').click()
+    except Exception as e:
+        print("비밀번호 제출 버튼 클릭 실패:", e)
+        return False
+
+    try:
+        print("로그인 성공 여부 확인 시도")
+        WebDriverWait(driver, 10).until(
+            EC.text_to_be_present_in_element((By.TAG_NAME, "body"), username)
         )
-        driver.execute_script("arguments[0].click();", submit_button)
-        time.sleep(3)
-        print("   두 번째 제출 버튼 클릭 성공")
     except Exception as e:
-        print("   [오류] 두 번째 로그인 제출 버튼 클릭 실패:", e)
-        print(traceback.format_exc())
-        return False
-
-    try:
-        print("7. 로그인 성공 여부 확인 시도")
-        # 디버깅용: 현재 URL과 페이지의 일부 HTML 출력
-        current_url = driver.current_url
-        print("현재 URL:", current_url)
-        print("페이지 일부:", driver.page_source[:500])
-        WebDriverWait(driver, 10).until(lambda d: "/login" not in d.current_url)
-        print("   로그인 페이지 탈출 확인")
-    except Exception as e:
-        print("   [오류] 로그인 성공 확인 실패:", e)
-        print(traceback.format_exc())
+        print("로그인 성공 확인 실패:", e)
         return False
 
     print("로그인 성공!")
