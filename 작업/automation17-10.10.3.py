@@ -149,8 +149,7 @@ def login_nikkei(driver, username, password):
             time.sleep(3)
         except Exception as e:
             print("   [오류] https://www.nikkei.com 접속 실패:", e)
-            print(traceback.format_exc())
-            return False
+            continue
 
         try:
             print("2. 로그인 링크 클릭 시도")
@@ -161,8 +160,7 @@ def login_nikkei(driver, username, password):
             print("   로그인 링크 클릭 성공")
         except Exception as e:
             print("   [오류] 로그인 링크 클릭 실패:", e)
-            print(traceback.format_exc())
-            return False
+            continue
 
         try:
             print("3. 이메일 입력 필드 찾기 및 아이디 입력 시도")
@@ -175,8 +173,7 @@ def login_nikkei(driver, username, password):
             print("   이메일 입력 성공")
         except Exception as e:
             print("   [오류] 이메일 입력 필드 찾기 실패:", e)
-            print(traceback.format_exc())
-            return False
+            continue
 
         try:
             print("4. 첫 번째 로그인 제출 버튼 클릭 시도")
@@ -188,8 +185,7 @@ def login_nikkei(driver, username, password):
             print("   첫 번째 제출 버튼 클릭 성공")
         except Exception as e:
             print("   [오류] 첫 번째 로그인 제출 버튼 클릭 실패:", e)
-            print(traceback.format_exc())
-            return False
+            continue
 
         try:
             print("5. 비밀번호 입력 필드 찾기 및 비밀번호 입력 시도")
@@ -202,8 +198,7 @@ def login_nikkei(driver, username, password):
             print("   비밀번호 입력 성공")
         except Exception as e:
             print("   [오류] 비밀번호 입력 필드 찾기 실패:", e)
-            print(traceback.format_exc())
-            return False
+            continue
 
         try:
             print("6. 두 번째 로그인 제출 버튼 클릭 시도")
@@ -215,8 +210,7 @@ def login_nikkei(driver, username, password):
             print("   두 번째 제출 버튼 클릭 성공")
         except Exception as e:
             print("   [오류] 두 번째 로그인 제출 버튼 클릭 실패:", e)
-            print(traceback.format_exc())
-            return False
+            continue
 
         try:
             print("7. 로그인 성공 여부 확인 시도")
@@ -228,28 +222,25 @@ def login_nikkei(driver, username, password):
             if "/login/challenge" in current_url:
                 raise Exception("구글 2차 인증 challenge 페이지 감지됨.")
             
-            # 로그인 성공 조건: URL에 "/login" 문자열이 없어야 함
+            # 로그인 성공 조건: URL에 "/login"이 없어야 함
             WebDriverWait(driver, 10).until(lambda d: "/login" not in d.current_url)
             print("   로그인 페이지 탈출 확인")
             print("로그인 성공!")
             return True
         except Exception as e:
-            # 2차 인증 challenge 페이지 감지 시 재시도
-            if "/login/challenge" in driver.current_url:
-                print("   [정보] 구글 2차 인증 challenge 페이지 감지됨.")
-                print("   크롬 프로세스를 종료합니다.")
-                kill_chrome()  # 모든 Chrome 프로세스 종료
-                wait_time = random.uniform(0, 600)
-                print(f"   {wait_time:.2f}초 대기 후 재시도합니다.")
-                time.sleep(wait_time)
-                print("   Chrome을 재시작합니다.")
-                start_chrome_debug()  # Chrome을 다시 remote debugging 모드로 실행
-                driver = create_driver_debug()  # 새 드라이버로 연결
-                continue
-            else:
-                print("   [오류] 로그인 성공 확인 실패:", e)
-                print(traceback.format_exc())
-                return False
+            print("   [오류] 로그인 성공 확인 실패:", e)
+            print("   [정보] 로그인 실패로 인한 프로필 초기화 진행")
+            try:
+                driver.delete_all_cookies()
+                driver.execute_script("window.sessionStorage.clear();")
+                driver.execute_script("window.localStorage.clear();")
+                print("   [정보] 쿠키, 세션, 로컬스토리지 초기화 완료")
+            except Exception as clear_e:
+                print("   [오류] 초기화 작업 실패:", clear_e)
+            wait_time = random.uniform(0, 600)
+            print(f"   {wait_time:.2f}초 대기 후 재시도합니다.")
+            time.sleep(wait_time)
+            continue
 
     print("최대 시도 횟수를 초과하여 로그인 실패.")
     return False
