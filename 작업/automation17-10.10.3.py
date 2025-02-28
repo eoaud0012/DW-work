@@ -411,8 +411,8 @@ def main():
         
         html_parts = []
         # PDF 맨 윗부분에 제목 추가
-        html_parts.append(f'<h1 style="text-align:center; margin-top:20px;">{subject}</h1>')
-        html_parts.append('<div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">')
+        html_parts.append(f'<h1 style="text-align:left; margin-top:20px;">{subject}</h1>')
+        html_parts.append('<div style="font-family: \'Nanum Gothic\', \'Noto Sans CJK\', sans-serif; color: #333; line-height: 1.6;">')
         
         for art in articles:
             translated_title = translate_text(art['title'], mode="title")
