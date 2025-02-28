@@ -2,7 +2,7 @@ name: Nikkei News Scrapping
 
 on:
   push:
-    branches: [ main ]
+    branches: [ master ]
   workflow_dispatch:
   schedule:
     - cron: '0 23 * * *'  # 한국 시간 08:00은 UTC 기준 23:00에 해당
@@ -23,4 +23,4 @@ jobs:
       - name: Run Automation Script
         run: |
           # 컨테이너 안에서 Python 스크립트 실행 (CMD에서 실행되던 내용이 오버라이드 될 수 있으므로 직접 실행)
-          python 작업/automation17-10.10.2.py
+          python 작업/automation17-10.10.3.py
