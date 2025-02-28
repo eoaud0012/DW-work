@@ -61,4 +61,4 @@ WORKDIR /app
 COPY . .
 
 # CMD 명령어로 파이썬 스크립트 실행 (파일명은 필요에 따라 수정)
-CMD ["python", "작업/automation17-10.10.3.py"]
+CMD ["python", "작업/automation17-10.9.py"]
