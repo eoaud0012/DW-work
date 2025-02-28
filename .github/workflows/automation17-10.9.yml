@@ -4,6 +4,8 @@ on:
   push:
     branches: [ main ]
   workflow_dispatch:
+  schedule:
+    - cron: '0 23 * * *'  # 한국 시간 08:00은 UTC 기준 23:00에 해당
 
 jobs:
   run-container:
