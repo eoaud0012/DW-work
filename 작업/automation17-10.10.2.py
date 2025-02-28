@@ -137,7 +137,7 @@ def is_logged_in(driver):
     except Exception:
         return False
 
-def login_nikkei(driver, username):
+def login_nikkei(driver, username, password):
     driver.get("https://www.nikkei.com")
     time.sleep(3)
     try:
@@ -155,8 +155,6 @@ def login_nikkei(driver, username):
         )
         email_field.clear()
         email_field.send_keys(username)
-        time.sleep(1)
-        email_field.send_keys(Keys.CONTROL, 'v')
         time.sleep(2)
     except Exception as e:
         print("이메일 입력 필드 찾기 실패:", e)
@@ -170,6 +168,18 @@ def login_nikkei(driver, username):
         time.sleep(3)
     except Exception as e:
         print("로그인 제출 버튼 클릭 실패:", e)
+        return False
+    
+        # 비밀번호 입력 (클립보드 사용 대신 직접 입력)
+    try:
+        password_field = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.ID, "login-password-password"))
+        )
+        password_field.clear()
+        password_field.send_keys(password)
+        time.sleep(2)           # 비밀번호 입력 후 2초 딜레이
+    except Exception as e:
+        print("비밀번호 입력 필드 찾기 실패:", e)
         return False
     
     try:
@@ -291,7 +301,7 @@ def scrape_articles():
     driver.get("https://www.nikkei.com")
     time.sleep(3)
     if not is_logged_in(driver):
-        if not login_nikkei(driver, nikkei_username):
+        if not login_nikkei(driver, nikkei_username, nikkei_password):
             driver.quit()
             return []
     else:
