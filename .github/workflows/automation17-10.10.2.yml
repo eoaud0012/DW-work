@@ -2,7 +2,7 @@ name: Nikkei News Scrapping
 
 on:
   push:
-    branches: [ main ]
+    branches: [ master ]
   workflow_dispatch:
   schedule:
     - cron: '0 23 * * *'  # 한국 시간 08:00은 UTC 기준 23:00에 해당
@@ -12,7 +12,7 @@ jobs:
     # GitHub Actions 러너가 Linux 기반이면, container 옵션으로 Docker 이미지를 지정할 수 있습니다.
     container:
       # 예시: GHCR에 업로드한 Docker 이미지 (YOUR_GITHUB_USERNAME, 이미지 이름, 태그 등으로 수정)
-      image: ghcr.io/eoaud0012/my-automation-image:latest
+      image: ghcr.io/${{ github.repository_owner }}/my-automation-image:latest
       options: --shm-size=2gb  # 필요에 따라 추가 옵션을 전달할 수 있습니다.
     runs-on: ubuntu-latest
     steps:
@@ -23,4 +23,4 @@ jobs:
       - name: Run Automation Script
         run: |
           # 컨테이너 안에서 Python 스크립트 실행 (CMD에서 실행되던 내용이 오버라이드 될 수 있으므로 직접 실행)
-          python 작업/automation17-10.10.2.py
+          python 작업/automation17-10.10.3.py
