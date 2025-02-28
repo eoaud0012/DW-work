@@ -224,7 +224,7 @@ def login_nikkei(driver, username, password):
             print("현재 URL:", current_url)
             print("페이지 일부:", driver.page_source[:500])
             
-            # 2차 인증 challenge 페이지 감지 확인
+            # 2차 인증 challenge 페이지 감지
             if "/login/challenge" in current_url:
                 raise Exception("구글 2차 인증 challenge 페이지 감지됨.")
             
@@ -234,15 +234,17 @@ def login_nikkei(driver, username, password):
             print("로그인 성공!")
             return True
         except Exception as e:
-            # 만약 2차 인증 challenge 페이지가 감지되었으면 재시도
+            # 2차 인증 challenge 페이지 감지 시 재시도
             if "/login/challenge" in driver.current_url:
                 print("   [정보] 구글 2차 인증 challenge 페이지 감지됨.")
                 print("   크롬 프로세스를 종료합니다.")
-                kill_chrome()  # 크롬 프로세스 종료 함수 (정의 필요)
+                kill_chrome()  # 모든 Chrome 프로세스 종료
                 wait_time = random.uniform(0, 600)
                 print(f"   {wait_time:.2f}초 대기 후 재시도합니다.")
                 time.sleep(wait_time)
-                driver = create_driver_debug()  # 디버그 프로필을 이용해 드라이버 재생성 (정의 필요)
+                print("   Chrome을 재시작합니다.")
+                start_chrome_debug()  # Chrome을 다시 remote debugging 모드로 실행
+                driver = create_driver_debug()  # 새 드라이버로 연결
                 continue
             else:
                 print("   [오류] 로그인 성공 확인 실패:", e)
