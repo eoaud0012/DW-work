@@ -1,11 +1,7 @@
 import os
-print("DISPLAY =", os.environ.get("DISPLAY"))
-
 import pathlib
 import re
 import subprocess
-import platform
-import shutil
 from datetime import datetime as dt
 from dateutil.parser import parse  # 다양한 날짜 형식 자동 파싱
 from bs4 import BeautifulSoup
@@ -17,6 +13,9 @@ import time
 import json
 import random  # 자연스러운 타이핑에 사용할 랜덤 딜레이
 
+# HTML -> PDF 변환 라이브러리 (WeasyPrint 사용)
+from weasyprint import HTML
+
 # Selenium 관련
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -24,6 +23,9 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
+
+# 클립보드 복사/붙여넣기에 사용 (기존 사용하던 라이브러리)
+import pyperclip
 
 # Selenium-stealth 라이브러리 (봇 탐지 회피용)
 from selenium_stealth import stealth
@@ -63,56 +65,33 @@ def human_typing(element, text):
 def kill_chrome():
     """
     크롬이 실행 중이라면 모두 종료합니다.
-    Windows에서는 taskkill, Linux에서는 pkill 명령어를 사용합니다.
-    pkill이 없는 경우 경고 메시지를 출력합니다.
+    Windows에서는 taskkill 명령어를 사용합니다.
     """
     try:
-        if platform.system() == "Windows":
-            subprocess.call("taskkill /F /IM chrome.exe", shell=True)
-        else:
-            if shutil.which("pkill"):
-                subprocess.call(["pkill", "-f", "chrome"])
-            else:
-                print("경고: 'pkill' 명령어를 찾을 수 없습니다. Dockerfile에 procps 패키지를 설치하세요.")
+        subprocess.call("taskkill /F /IM chrome.exe", shell=True)
         print("기존의 모든 Chrome 프로세스 종료 완료")
     except Exception as e:
         print("Chrome 종료 중 오류 발생:", e)
 
 def start_chrome_debug():
     """
-    remote debugging 모드로 크롬을 실행합니다.
-    Windows에서는 기본 옵션을, Linux에서는 headless 모드에 추가 옵션들을 사용합니다.
+    cmd 창에서 아래 명령어와 동일하게 remote debugging 모드로 크롬을 실행합니다.
+    "C:\Program Files\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9222 --user-data-dir="C:\chrome_debug_profile"
     """
-    if platform.system() == "Windows":
-        chrome_path = r"C:\Program Files\Google\Chrome\Application\chrome.exe"
-        user_data_dir = r"C:\chrome_debug_profile"
-        cmd = [chrome_path, "--remote-debugging-port=9222", f"--user-data-dir={user_data_dir}"]
-        process = subprocess.Popen(cmd)
-    else:
-        chrome_path = "/usr/bin/google-chrome"
-        user_data_dir = "/tmp/chrome_debug_profile"
-        cmd = f"{chrome_path} --headless --no-sandbox --disable-setuid-sandbox --disable-dev-shm-usage --disable-gpu --remote-debugging-port=9222 --user-data-dir={user_data_dir}"
-        process = subprocess.Popen(cmd, shell=True, env=os.environ.copy())
+    chrome_path = r"C:\Program Files\Google\Chrome\Application\chrome.exe"
+    user_data_dir = r"C:\chrome_debug_profile"
+    cmd = [chrome_path, "--remote-debugging-port=9222", f"--user-data-dir={user_data_dir}"]
+    process = subprocess.Popen(cmd)
     time.sleep(5)
     return process
 
 def create_driver_debug():
     """
     remote debugging 모드로 실행된 크롬에 연결합니다.
-    Linux 환경에서는 추가 옵션을 전달합니다.
     """
     chrome_options = Options()
     chrome_options.add_experimental_option("debuggerAddress", "127.0.0.1:9222")
     chrome_options.add_argument("--disable-blink-features=AutomationControlled")
-    if platform.system() != "Windows":
-        chrome_options.add_argument("--no-sandbox")
-        chrome_options.add_argument("--headless")  # headless 모드 활성화
-        chrome_options.add_argument("--disable-setuid-sandbox")
-        chrome_options.add_argument("--disable-dev-shm-usage")
-        chrome_options.add_argument("--disable-gpu")
-        chrome_options.add_argument("--disable-software-rasterizer")
-        chrome_options.add_argument("--disable-extensions")
-
     driver = webdriver.Chrome(options=chrome_options)
     
     # Selenium-stealth 적용 (봇 탐지 회피)
@@ -129,63 +108,52 @@ def create_driver_debug():
 def is_logged_in(driver):
     """
     로그인 여부를 판단합니다.
-    www.nikkei.com 페이지 오른쪽 상단에 '有료会員'이라는 문구가 나타나면 로그인된 것으로 판단합니다.
+    www.nikkei.com 페이지 오른쪽 상단에 '有料会員'이라는 문구가 나타나면 로그인된 것으로 판단합니다.
     """
     try:
         WebDriverWait(driver, 5).until(
             EC.presence_of_element_located((By.XPATH, "//span[contains(text(),'有料会員')]"))
         )
-        print("로그인 상태 감지됨 (有료会員 발견)")
+        print("로그인 상태 감지됨 (有料会員 발견)")
         return True
     except Exception:
         return False
 
-# --------------------------------------------------------------------
-# 로그인 함수 (아이디 입력 후 최종 로그인 버튼 클릭)
-# --------------------------------------------------------------------
-def login_nikkei(driver, username, password):
-    # www.nikkei.com으로 접속
+def login_nikkei(driver, username):
     driver.get("https://www.nikkei.com")
-    time.sleep(3)  # 페이지 로딩 대기
-
-    # 로그인 링크 클릭
+    time.sleep(3)
     try:
         login_button = WebDriverWait(driver, 10).until(
-            EC.element_to_be_clickable(
-                (By.XPATH, "//a[contains(@class, 'k-header-account-nav__item-login')]")
-            )
+            EC.element_to_be_clickable((By.XPATH, "//a[contains(@class, 'k-header-account-nav__item-login')]"))
         )
         login_button.click()
     except Exception as e:
         print("로그인 링크 클릭 실패:", e)
         return False
 
-    # 아이디 입력 (직접 입력 방식)
     try:
         email_field = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.ID, "login-id-email"))
         )
         email_field.clear()
-        email_field.send_keys(username)  # 직접 입력
+        pyperclip.copy(username)
         time.sleep(1)
-        # 참고: 클립보드 대신 직접 입력하므로 Keys.CONTROL, 'v'는 사용하지 않음
+        email_field.send_keys(Keys.CONTROL, 'v')
         time.sleep(2)
     except Exception as e:
         print("이메일 입력 필드 찾기 실패:", e)
         return False
 
-    # 최종 로그인(제출) 버튼 클릭 (JavaScript로 클릭)
     try:
         submit_button = WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable((By.XPATH, "//button[@data-testid='submit']"))
         )
         driver.execute_script("arguments[0].click();", submit_button)
-        time.sleep(3)  # 클릭 후 처리 대기
+        time.sleep(3)
     except Exception as e:
         print("로그인 제출 버튼 클릭 실패:", e)
         return False
-
-    # 두 번째 최종 로그인(제출) 버튼 클릭
+    
     try:
         submit_button = WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable((By.XPATH, "//button[@data-testid='submit']"))
@@ -196,7 +164,6 @@ def login_nikkei(driver, username, password):
         print("두 번째 로그인 제출 버튼 클릭 실패:", e)
         return False
 
-    # 로그인 성공 확인: URL에 "/login"이 남아있지 않은지 확인
     try:
         WebDriverWait(driver, 10).until(lambda d: "/login" not in d.current_url)
     except Exception as e:
@@ -206,9 +173,6 @@ def login_nikkei(driver, username, password):
     print("로그인 성공!")
     return True
 
-# --------------------------------------------------------------------
-# 번역 및 요약 함수: Azure OpenAI API를 이용해 텍스트를 한국어로 번역/요약
-# --------------------------------------------------------------------
 def translate_text(text, mode="default"):
     endpoint = azure_endpoint
     headers = {
@@ -251,20 +215,36 @@ def translate_text(text, mode="default"):
         print("번역 중 오류 발생:", e)
         return text
 
-# --------------------------------------------------------------------
-# 이메일 발송 함수
-# --------------------------------------------------------------------
-def send_email(subject, body, recipient):
+def send_email(subject, html_body, recipient, attachment_path=None):
     sender = sender_email
     email_pw = os.getenv("EMAIL_PASSWORD")
     if email_pw is None:
         print("EMAIL_PASSWORD 환경변수가 설정되어 있지 않습니다.")
-        return
+        return False
     msg = MIMEMultipart()
     msg["From"] = sender
     msg["To"] = recipient
     msg["Subject"] = subject
-    msg.attach(MIMEText(body, "plain"))
+
+    msg.attach(MIMEText(html_body, "html"))
+
+    if attachment_path is not None:
+        from email.mime.base import MIMEBase
+        from email import encoders
+        try:
+            with open(attachment_path, "rb") as attachment:
+                part = MIMEBase("application", "pdf")
+                part.set_payload(attachment.read())
+                encoders.encode_base64(part)
+                part.add_header(
+                    "Content-Disposition",
+                    f'attachment; filename="{os.path.basename(attachment_path)}"'
+                )
+                msg.attach(part)
+        except Exception as e:
+            print("첨부 파일 추가 중 오류 발생:", e)
+            return False
+
     try:
         smtp_server = "smtp.gmail.com"
         smtp_port = 587
@@ -274,12 +254,11 @@ def send_email(subject, body, recipient):
         server.sendmail(sender, recipient, msg.as_string())
         server.quit()
         print("이메일 발송 성공!")
+        return True
     except Exception as e:
         print("이메일 발송 중 오류 발생:", e)
+        return False
 
-# --------------------------------------------------------------------
-# 기사 스크래핑 함수 (다섯 개의 섹션 탐색)
-# --------------------------------------------------------------------
 def scrape_articles():
     base_url = "https://www.nikkei.com"
     section_urls = [
@@ -290,15 +269,11 @@ def scrape_articles():
         ("https://www.nikkei.com/opinion/editorial/", "오피니언 사설")
     ]
     
-    # 크롬 디버그 모드로 실행된 인스턴스에 연결
     driver = create_driver_debug()
-    
-    # www.nikkei.com 접속 후 로그인 상태 확인
     driver.get("https://www.nikkei.com")
     time.sleep(3)
     if not is_logged_in(driver):
-        # 로그인되지 않은 경우 로그인 시도
-        if not login_nikkei(driver, nikkei_username, nikkei_password):
+        if not login_nikkei(driver, nikkei_username):
             driver.quit()
             return []
     else:
@@ -373,9 +348,6 @@ def scrape_articles():
     print(f"스크래핑 완료: 총 {len(articles)}개의 오늘 날짜 기사가 수집되었습니다.")
     return articles
 
-# --------------------------------------------------------------------
-# URL에서 신문사 이름 추출 (매핑은 필요에 따라 확장 가능)
-# --------------------------------------------------------------------
 def get_newspaper_name(url):
     from urllib.parse import urlparse
     domain = urlparse(url).netloc.lower()
@@ -383,14 +355,8 @@ def get_newspaper_name(url):
         return "닛케이 기사"
     return "원문 기사"
 
-# --------------------------------------------------------------------
-# 메인 함수: 크롬 디버그 모드 실행, 스크래핑, 번역, 이메일 발송 작업 수행
-# --------------------------------------------------------------------
 def main():
-    # 먼저 기존에 실행 중인 Chrome 프로세스 모두 종료
     kill_chrome()
-    
-    # remote debugging 모드로 크롬 실행
     chrome_process = start_chrome_debug()
     
     try:
@@ -400,40 +366,77 @@ def main():
             print("오늘자 기사가 없습니다.")
             return
         
-        email_body = ""
-        print(f"번역 요청 시작: 총 {article_count}개의 기사에 대해 번역 요청을 진행합니다.")
+        # 메일 제목은 날짜를 슬래시 형식으로 유지
+        date_str = dt.now().strftime('%y/%m/%d')
+        subject = f"[{date_str}] Nikkei 뉴스 기사 번역 및 요약 ({article_count}개)"
+        # 파일 시스템에서는 슬래시가 허용되지 않으므로 치환하여 파일명을 생성
+        safe_date_str = date_str.replace('/', '_')
+        pdf_filename = f"[{safe_date_str}] Nikkei 뉴스 기사 번역 및 요약 ({article_count}개).pdf"
+        
+        html_parts = []
+        # PDF 맨 윗부분에 제목 추가
+        html_parts.append(f'<h1 style="text-align:center; margin-top:20px;">{subject}</h1>')
+        html_parts.append('<div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">')
+        
         for art in articles:
-            print(f"번역 요청 중: {art['title']} (섹션: {art['section']}, {art['order']}/{article_count})")
             translated_title = translate_text(art['title'], mode="title")
             translated_summary = translate_text(art['content'], mode="content")
             
-            parts = re.split(r"\*\*번역:\*\*", translated_summary)
-            if parts[0].strip():
-                translated_summary = parts[0].strip()
-            elif len(parts) > 1 and parts[1].strip():
-                translated_summary = parts[1].strip()
+            # 요약 내용에서 대시('-')만 제거, '•'는 그대로 유지
+            summary_lines = []
+            for line in translated_summary.splitlines():
+                line = line.strip()
+                if not line:
+                    continue
+                if line.startswith('-'):
+                    line = line.lstrip('-').strip()
+                summary_lines.append(line)
+            
+            if summary_lines:
+                li_items = "".join(f"<li>{l}</li>" for l in summary_lines)
             else:
-                translated_summary = "요약 내용 없음"
+                li_items = "<li>요약 내용 없음</li>"
             
             newspaper_name = get_newspaper_name(art['url'])
             
-            final_article_text = (
-                f"**제목:** {art['title']} (전체 기사 {article_count}개 중 {art['order']}번 째, 섹션: {art['section']})\n"
-                f"**제목:** {translated_title}\n\n"
-                f"**업로드 시간:** {art['upload_time']}\n"
-                f"**원문 URL:** [{newspaper_name}]({art['url']})\n\n"
-                f"---\n\n"
-                f"**요약:**\n\n"
-                f"{translated_summary}\n"
-            )
-            email_body += final_article_text + ("\n" + "=" * 50 + "\n\n")
+            article_html = f"""
+            <div style="margin-bottom: 20px;">
+              <h2 style="margin: 0 0 5px 0;">{art['title']}</h2>
+              <h3 style="margin: 0 0 10px 0; color: #555;">{translated_title}</h3>
+              <p style="margin: 3px 0;"><strong>업로드 시간:</strong> {art['upload_time']}</p>
+              <p style="margin: 3px 0;"><strong>원문 URL:</strong> <a href="{art['url']}" style="color: #1a73e8; text-decoration: none;">{newspaper_name}</a></p>
+            </div>
+            <div style="margin-bottom: 20px;">
+              <p style="margin: 3px 0;"><strong>요약:</strong></p>
+              <ul style="margin: 0 0 0 20px; padding: 0;">
+                {li_items}
+              </ul>
+            </div>
+            <hr style="border: none; border-top: 2px dashed #888; margin: 30px 0;">
+            """
+            html_parts.append(article_html)
         
-        subject = f"[{dt.now().strftime('%y/%m/%d')}] Nikkei 뉴스 기사 번역 및 요약 ({article_count}개)"
+        html_parts.append("</div>")
+        html_body = "".join(html_parts)
+        
+        try:
+            HTML(string=html_body).write_pdf(pdf_filename)
+            print("PDF 파일 생성 완료 (WeasyPrint 사용).")
+        except Exception as e:
+            print("PDF 생성 중 오류 발생:", e)
+            pdf_filename = None
+        
         recipient = "eoaud0012@dongwon.com"
-        send_email(subject, email_body, recipient)
+        email_success = send_email(subject, html_body, recipient, attachment_path=pdf_filename)
         print(f"이메일 발송 완료: 총 {article_count}개의 기사 발송되었습니다.")
+        
+        # 이메일 발송 성공 시에만 PDF 파일 삭제
+        if email_success and pdf_filename and os.path.exists(pdf_filename):
+            os.remove(pdf_filename)
+            print("PDF 파일이 영구적으로 삭제되었습니다.")
+        else:
+            print("이메일 발송에 오류가 발생하여 PDF 파일을 삭제하지 않습니다.")
     finally:
-        # 작업 종료 후 remote debugging 모드로 실행한 크롬 프로세스 종료
         chrome_process.terminate()
 
 if __name__ == "__main__":
