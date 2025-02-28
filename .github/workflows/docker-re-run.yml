@@ -2,7 +2,7 @@ name: Re-Run Automation Container(when FAIL comes out)
 
 on:
   push:
-    branches: [ main ]
+    branches: [ master ]
   workflow_dispatch:
 
 jobs:
