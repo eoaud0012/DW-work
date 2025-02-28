@@ -1,6 +1,6 @@
 import os
 print("DISPLAY =", os.environ.get("DISPLAY"))
-
+import platform
 import pathlib
 import re
 import subprocess
@@ -77,23 +77,39 @@ def kill_chrome():
 
 def start_chrome_debug():
     """
-    cmd 창에서 아래 명령어와 동일하게 remote debugging 모드로 크롬을 실행합니다.
-    "C:\Program Files\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9222 --user-data-dir="C:\chrome_debug_profile"
+    remote debugging 모드로 크롬을 실행합니다.
+    Windows에서는 기본 옵션을, Linux에서는 headless 모드에 추가 옵션들을 사용합니다.
     """
-    chrome_path = r"C:\Program Files\Google\Chrome\Application\chrome.exe"
-    user_data_dir = r"C:\chrome_debug_profile"
-    cmd = [chrome_path, "--remote-debugging-port=9222", f"--user-data-dir={user_data_dir}"]
-    process = subprocess.Popen(cmd)
+    if platform.system() == "Windows":
+        chrome_path = r"C:\Program Files\Google\Chrome\Application\chrome.exe"
+        user_data_dir = r"C:\chrome_debug_profile"
+        cmd = [chrome_path, "--remote-debugging-port=9222", f"--user-data-dir={user_data_dir}"]
+        process = subprocess.Popen(cmd)
+    else:
+        chrome_path = "/usr/bin/google-chrome"
+        user_data_dir = "/tmp/chrome_debug_profile"
+        cmd = f"{chrome_path} --headless --no-sandbox --disable-setuid-sandbox --disable-dev-shm-usage --disable-gpu --remote-debugging-port=9222 --user-data-dir={user_data_dir}"
+        process = subprocess.Popen(cmd, shell=True, env=os.environ.copy())
     time.sleep(5)
     return process
 
 def create_driver_debug():
     """
     remote debugging 모드로 실행된 크롬에 연결합니다.
+    Linux 환경에서는 추가 옵션을 전달합니다.
     """
     chrome_options = Options()
     chrome_options.add_experimental_option("debuggerAddress", "127.0.0.1:9222")
     chrome_options.add_argument("--disable-blink-features=AutomationControlled")
+    if platform.system() != "Windows":
+        chrome_options.add_argument("--no-sandbox")
+        chrome_options.add_argument("--headless")  # headless 모드 활성화
+        chrome_options.add_argument("--disable-setuid-sandbox")
+        chrome_options.add_argument("--disable-dev-shm-usage")
+        chrome_options.add_argument("--disable-gpu")
+        chrome_options.add_argument("--disable-software-rasterizer")
+        chrome_options.add_argument("--disable-extensions")
+
     driver = webdriver.Chrome(options=chrome_options)
     
     # Selenium-stealth 적용 (봇 탐지 회피)
