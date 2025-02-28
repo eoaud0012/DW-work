@@ -211,6 +211,10 @@ def login_nikkei(driver, username, password):
 
     try:
         print("7. 로그인 성공 여부 확인 시도")
+        # 디버깅용: 현재 URL과 페이지의 일부 HTML 출력
+        current_url = driver.current_url
+        print("현재 URL:", current_url)
+        print("페이지 일부:", driver.page_source[:500])
         WebDriverWait(driver, 10).until(lambda d: "/login" not in d.current_url)
         print("   로그인 페이지 탈출 확인")
     except Exception as e:
